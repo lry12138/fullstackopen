@@ -3,12 +3,15 @@ import personServices from './services/persons'
 import ShowPeople from './components/ShowPeople'
 import AddNew from './components/AddNew'
 import FilterForm from './components/FilterForm'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setnewNumber] = useState('')
   const [userFilter, setuserFilter] = useState('')
+  const [message,setMessage] = useState(null)
+  const [errorMessage,setErrorMessage] = useState(null)
 
   useEffect(() => {
     personServices 
@@ -48,6 +51,15 @@ const App = () => {
               setNewName('')
               setnewNumber('') 
             })
+          .catch(error => {
+            setErrorMessage(
+              `Information for ${newName} is already removed from server `
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
+              setPersons(persons.filter(person => person.id !== existance.id))
+            })
       }
     } 
     else {
@@ -60,9 +72,16 @@ const App = () => {
         .create(newPerson)
         .then(returned  =>{
           setPersons(persons.concat(returned))
+          setMessage(
+            `Add ${newName} `
+          )
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
           setNewName('')
           setnewNumber('')
       })
+
     }
   }
 
@@ -93,6 +112,8 @@ const App = () => {
       <AddNew addPerson={addPerson} newName={newName} newNumber={newNumber} handleChangeName={handleChangeName} handleChangePhone={handleChangePhone}/>
       
       <h2>Numbers</h2>
+      <Notification message={message} colour ='green'/>
+      <Notification message={errorMessage} colour ='red'/>
       <ul>
         {peopletoShow.map(people =>
           <ShowPeople
