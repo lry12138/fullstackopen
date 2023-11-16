@@ -1,28 +1,35 @@
+import CountryInfo from "./CountryInfo"
+import { useState } from "react"
 const CountryFilter = ({countries,userFilter}) =>{
     const matches = countries.filter(country =>country.name.common.includes(userFilter))
-    console.log(matches)
+    const [toShow,setToShow] = useState(null)
+
     if (matches.length === 1){
         return (
             <div>
-            {matches.map(country => <div>
-                <h1>{country.name.common}</h1>
-                <p>capital {country.capital}</p>
-                <p>area {country.area}</p>
-                <h2>Languages</h2>
-                <ul>
-                    {Object.keys(country.languages).map((key,val)=><li key={key}>{country.languages[key]}</li>)}
-                </ul>
-                <img src={country.flags.png} alt='{country.name} flag'/>
-            </div>
-            )}
+            {matches.map(country =><CountryInfo name={country.name.common} 
+            capital={country.capital}
+            area ={country.area}
+            languages ={country.languages}
+            flagpic={country.flags.png}/>)}
             </div>
         )}
     else if (matches.length<10){
         return (
             <div>
                 <ul>
-                 {matches.map(country => <li>{country.name.common}</li>)}
-                 </ul>
+                    {matches.map(country => <li>{country.name.common}
+                    <button type="submit" onClick ={()=>setToShow(country)}>
+                        Show info
+                    </button>
+                    </li>)}
+                </ul>
+                {toShow ? <CountryInfo name={toShow.name.common} 
+                            capital={toShow.capital}
+                            area ={toShow.area}
+                            languages ={toShow.languages}
+                            flagpic={toShow.flags.png}/>
+                        : null}
             </div>
         )}
     else {

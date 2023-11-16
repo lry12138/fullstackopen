@@ -30,7 +30,6 @@ const App = () => {
   }
 
   const handleFilter = (event) => {
-    console.log(event.target.value)
     setuserFilter(event.target.value)
   }
     
