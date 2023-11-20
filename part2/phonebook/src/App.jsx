@@ -50,15 +50,16 @@ const App = () => {
               setNewName('')
               setnewNumber('') 
             })
-          .catch(error => {
-            setErrorMessage(
-              `Information for ${newName} is already removed from server `
-            )
-            setTimeout(() => {
-              setErrorMessage(null)
-            }, 5000)
-              setPersons(persons.filter(person => person.id !== existance.id))
-            })
+            .catch(error => {
+              // this is the way to access the error message
+                setErrorMessage(
+                  ` ${error.response.data.error} `
+                )
+                setTimeout(() => {
+                  setErrorMessage(null)
+                }, 5000)})
+      
+          
       }
     } 
     else {
@@ -80,8 +81,16 @@ const App = () => {
           setNewName('')
           setnewNumber('')
       })
+        .catch(error => {
+          // this is the way to access the error message
+            setErrorMessage(
+              ` ${error.response.data.error} `
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)})
 
-    }
+      }
   }
 
   const filterPerson = (person) =>{
