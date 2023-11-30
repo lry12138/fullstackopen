@@ -1,17 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect,useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService  from './services/login'
 import Notification from './components/Notification'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('')
   const [user,setUser] = useState(null)
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [message,setMessage] = useState(null)
   const [errorMessage,setErrorMessage] = useState(null)
 
@@ -30,7 +29,6 @@ const App = () => {
     )  
   }, [])
 
-
   const handleLogin = async (event) =>{
     event.preventDefault()
     try{
@@ -46,7 +44,6 @@ const App = () => {
       setMessage(`Welcome ${user.username}`)
       setTimeout(() => {setMessage(null)}, 4500)
     }catch(exception){
-        // this is the way to access the error message
       setErrorMessage(`Wrong username or password. `)
       setTimeout(() => {setErrorMessage(null)}, 4500)}
   }
@@ -56,30 +53,6 @@ const App = () => {
     window.location.reload(false)
     setMessage(`Logged out successfully`)
     setTimeout(() => {setMessage(null)}, 4500)
-  }
-
-  const handleNewBlog = async (event) =>{
-    event.preventDefault()
-    const blogObject = {
-      title: title,
-      author: author,
-      url: url,
-      user: user
-    }
-    try{
-      const newBlog = await blogService.addBlog(blogObject)
-      setBlogs(blogs.concat(newBlog))
-      setMessage(`${title} by ${author} is added`)
-      setTimeout(() => {setMessage(null)}, 4500)
-      setTitle('')
-      setAuthor('')
-      setUrl('')
-    }
-    catch(error){
-      setErrorMessage(`${error.response.data.error}`)
-      setTimeout(() => {setErrorMessage(null)}, 4500)
-    }
-    
   }
 
   const LoginForm = () =>(
@@ -102,32 +75,6 @@ const App = () => {
       </form>
   )
 
-  const BlogForm = () =>(
-    <form onSubmit={handleNewBlog}>
-        <div>
-        Title 
-          <input type="text" 
-            value = {title}
-            name="title" 
-            onChange={({target}) => setTitle (target.value)}/>
-        </div>
-        <div>
-        Author 
-          <input type="text" 
-          value={author} 
-          name="author"
-          onChange={({target}) => setAuthor (target.value)}/>
-        </div>
-        <div>
-        URL 
-          <input type="text" 
-            value = {url}
-            name="url" 
-            onChange={({target}) => setUrl (target.value)}/>
-        </div>
-        <button type="Submit">Submit</button>
-      </form>
-  )
   const BlogsPage = () =>(
     <div>
     {blogs.map(blog =>
@@ -136,11 +83,34 @@ const App = () => {
     </div>
   )
 
+  const blogFormRef = useRef()
+  const handleNewBlog = async(blogObject) =>{
+    blogFormRef.current.toggleVisibility()
+    try{
+      const newBlog = await blogService.addBlog(blogObject)
+      setBlogs(blogs.concat(newBlog))
+      setMessage(`${blogObject.title} by ${blogObject.author} is added`)
+      setTimeout(() => {setMessage(null)}, 4500)
+    }
+    catch(error){
+      setErrorMessage(`${error.response.data.error}`)
+      setTimeout(() => {setErrorMessage(null)}, 4500)
+    }
+    
+  }
+
+  const blogForm = () => (
+    <Togglable buttonLabel='new Blog' ref={blogFormRef}>
+      <h1>Create New Blog</h1>
+      <BlogForm createBlog = {handleNewBlog} user= {user}/>
+    </Togglable>
+  )
+
   const UserPage = () =>(
     <div>
-    {BlogForm()}
     <p>{user.username} is logged in</p>
     <button type = "Submit" onClick={handleLogOut}>Log out</button>
+    {blogForm()}
     {BlogsPage()}
     </div>
     
@@ -148,7 +118,7 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
+      <h1>Blogs</h1>
       <Notification message={errorMessage} colour = 'red'/>
       <Notification message={message} colour = 'green'/>
       {user === null
