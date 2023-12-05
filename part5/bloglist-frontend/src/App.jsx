@@ -14,21 +14,25 @@ const App = () => {
   const [message,setMessage] = useState(null)
   const [errorMessage,setErrorMessage] = useState(null)
 
-  useEffect(() => {
+  //init
+  useEffect(() =>{
     const loggedUserJSON = window.localStorage.getItem('loggedInUser')
     if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+      const currentuser = JSON.parse(loggedUserJSON)
+      blogService.setToken(currentuser.token)
+      setUser(currentuser)
+  }
+  }, [])
+
+  useEffect(() =>{ async function fetchdata(){
+    const initialBlogs = await blogService.getAll()
+    initialBlogs.sort((a, b) => {return(b.likes - a.likes)})
+    setBlogs(initialBlogs)
     }
-  }, [])
+    fetchdata()
+  }, [blogs])
 
-  useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
-  }, [])
-
+  //login + out
   const handleLogin = async (event) =>{
     event.preventDefault()
     try{
@@ -75,20 +79,38 @@ const App = () => {
       </form>
   )
 
+  //action per blog
+  const handleLike = async (blog) =>{
+    const id = blog.id
+    const returnedBlog = await blogService.likeBlog(blog)
+    setBlogs(blogs.map(blog => blog.id !== id ?blog: returnedBlog))
+  }
+
+  const handleDelete = async (blog)=>{
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)){
+    await blogService.deleteBlog(blog)
+    }
+  }
+
   const BlogsPage = () =>(
     <div>
     {blogs.map(blog =>
-      <Blog key={blog.id} blog={blog} />
+      <Blog key={blog.id} 
+        blog={blog} 
+        handleLike ={handleLike}
+        handleDelete={handleDelete} 
+        userid = {user.id}/>
     )}
     </div>
   )
 
+  //add new blog
   const blogFormRef = useRef()
   const handleNewBlog = async(blogObject) =>{
     blogFormRef.current.toggleVisibility()
     try{
       const newBlog = await blogService.addBlog(blogObject)
-      setBlogs(blogs.concat(newBlog))
+      setBlogs( blogs=>[...blogs ,newBlog]) 
       setMessage(`${blogObject.title} by ${blogObject.author} is added`)
       setTimeout(() => {setMessage(null)}, 4500)
     }
@@ -106,6 +128,7 @@ const App = () => {
     </Togglable>
   )
 
+  //display
   const UserPage = () =>(
     <div>
     <p>{user.username} is logged in</p>
