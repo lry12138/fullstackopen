@@ -24,12 +24,12 @@ const Blog = ({ blog, handleLike,handleDelete,userid }) => {
     marginBottom: 10
   }
   return (
-    <div style = {blogStyle}>
-      <p>{blog.title} by {blog.author}</p> <button onClick={toggleVisibility}>{visible?'close':'view'}</button>
-      <div style = {showWhenVisible}>
-        <label htmlFor ='url'>Link :</label> <a id='url' href={blog.url.toString()}> {blog.url.toString()}</a>
+    <div style = {blogStyle} className ='blog' >
+      <p >{blog.title} by {blog.author}</p> <button onClick={toggleVisibility}>{visible?'close':'view'}</button>
+      <div style = {showWhenVisible} className = 'togglable'>
+        <label htmlFor ='url' className ='url'>Link :</label> <a id='url' href={blog.url.toString()}> {blog.url.toString()}</a>
         <br/><br/>
-        <label htmlFor ='likes'>Likes : {blog.likes.toString()}</label>
+        <label htmlFor ='likes' className ='likes'>Likes : {blog.likes.toString()}</label>
         <button onClick={addlike}>like</button>
         <p>Created by: {user}</p>
         {userid===blog.user.id
