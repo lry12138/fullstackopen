@@ -88,6 +88,33 @@ describe('template spec', function() {
         cy.get('delete').should('not.exist')
       })
     })
-  })
+    describe('and several blog exists', function () {
+      beforeEach(function () {
+        cy.createBlog({
+          title:'Blog1',
+          author:'default',
+          url:'example.com',
+          likes:'3'
+        })
+        cy.createBlog({
+          title:'Blog2',
+          author:'default',
+          url:'example.com',
+          likes:'2'
+        })
+        cy.createBlog({
+          title:'Blog3',
+          author:'default',
+          url:'example.com',
+          likes:'4'
+        })
+      })
 
+      it('Blogs are ranked by number of likes', function() {
+        cy.get('.blog').eq(0).should('contain', 'Blog3')
+        cy.get('.blog').eq(1).should('contain', 'Blog1')
+        cy.get('.blog').eq(2).should('contain', 'Blog2')
+      })
+    })
+  })
 })
