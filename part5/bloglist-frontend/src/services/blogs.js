@@ -12,8 +12,13 @@ const getAll = async () => {
   const config = {
     headers: { Authorization: token }
   }
-  const request = await axios.get(baseUrl,config)
-  return request.data
+  try{
+    const request = await axios.get(baseUrl,config)
+    return request.data
+  }
+  catch(error){
+    console.log(error.response.data.error)
+  }
 }
 
 const addBlog = async newObject  => {
@@ -25,22 +30,22 @@ const addBlog = async newObject  => {
   return response.data
 }
 
-const likeBlog = async blogToUpdate =>{
-    const config = {
-      headers: { Authorization: token }
-    }
-    const blogId = blogToUpdate.id
-    const updatedBlog = ({
-      title: blogToUpdate.title,
-      author: blogToUpdate.author,
-      url: blogToUpdate.url,
-      likes: blogToUpdate.likes+1
+const likeBlog = async blogToUpdate => {
+  const config = {
+    headers: { Authorization: token }
+  }
+  const blogId = blogToUpdate.id
+  const updatedBlog = ({
+    title: blogToUpdate.title,
+    author: blogToUpdate.author,
+    url: blogToUpdate.url,
+    likes: blogToUpdate.likes+1
   })
   const response = await axios.put(baseUrl + '/' + blogId,updatedBlog,config)
   return response.data
 }
 
-const deleteBlog = async blog =>{
+const deleteBlog = async blog => {
   const config = {
     headers: { Authorization: token }
   }
@@ -48,4 +53,4 @@ const deleteBlog = async blog =>{
   return response.data
 }
 
-export default { getAll,setToken,addBlog,likeBlog,deleteBlog}
+export default { getAll,setToken,addBlog,likeBlog,deleteBlog }
