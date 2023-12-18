@@ -25,8 +25,10 @@ const App = () => {
   }, [])
 
   useEffect(() => { async function fetchdata(){
-    const initialBlogs = await blogService.getAll()
-    initialBlogs.sort((a, b) => {return(b.likes - a.likes)})
+    let initialBlogs = await blogService.getAll()
+    initialBlogs
+      ?initialBlogs.sort((a, b) => {return(b.likes - a.likes)})
+      :initialBlogs = []
     setBlogs(initialBlogs)
   }
   fetchdata()
@@ -64,6 +66,7 @@ const App = () => {
       <div>
         Username
         <input type="text"
+          id = "username"
           value = {username}
           name="username"
           onChange={({ target }) => setUsername (target.value)}/>
@@ -71,11 +74,12 @@ const App = () => {
       <div>
         Password
         <input type="password"
+          id='password'
           value={password}
           name="password"
           onChange={({ target }) => setPassword (target.value)}/>
       </div>
-      <button type="Submit">Login</button>
+      <button id="login-button" type="Submit" >Login</button>
     </form>
   )
 
@@ -122,7 +126,7 @@ const App = () => {
   }
 
   const blogForm = () => (
-    <Togglable buttonLabel='new Blog' ref={blogFormRef}>
+    <Togglable buttonLabel='new Blog' ref={blogFormRef} >
       <h1>Create New Blog</h1>
       <BlogForm createBlog = {handleNewBlog} user= {user}/>
     </Togglable>
